@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>OSMAN — Training Block</title>
+<meta name="theme-color" content="#0C0C0C">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Osman">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="./icon-180.png">
+<link rel="apple-touch-icon" sizes="192x192" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512.png">
+<style>
+:root{
+  --ink:#0C0C0C;
+  --panel:#161616;
+  --panel2:#1F1F1F;
+  --line:#2C2C2C;
+  --fire:#F2622A;
+  --fire-dim:#8A3616;
+  --text:#F4F1EE;
+  --mute:#8B8683;
+  --good:#3FA46A;
+  --pad:16px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;background:var(--ink);color:var(--text)}
+body{
+  font-family:"Helvetica Neue",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  font-size:16px;line-height:1.45;
+  padding-bottom:calc(88px + env(safe-area-inset-bottom));
+  -webkit-font-smoothing:antialiased;
+}
+input,select,button,textarea{font-family:inherit;font-size:16px}
+button{cursor:pointer;border:none;background:none;color:inherit}
+.wrap{max-width:620px;margin:0 auto;padding:0 var(--pad)}
+
+/* ---- header ---- */
+header{
+  position:sticky;top:0;z-index:40;background:rgba(12,12,12,.94);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);
+  padding-top:env(safe-area-inset-top);
+}
+.hbar{display:flex;align-items:center;justify-content:space-between;padding:12px var(--pad) 12px;max-width:620px;margin:0 auto}
+.brand{display:flex;align-items:baseline;gap:9px}
+.brand b{
+  font-size:20px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+  font-stretch:condensed;
+}
+.brand span{font-size:11px;color:var(--mute);letter-spacing:.18em;text-transform:uppercase}
+.blockchip{
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--fire);
+  border:1px solid var(--fire-dim);border-radius:999px;padding:5px 11px;font-weight:700;
+}
+
+/* ---- generic ---- */
+h2{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--mute);margin:26px 0 10px;font-weight:700}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.mute{color:var(--mute)}
+.sm{font-size:13px}
+.xs{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.btn{
+  background:var(--fire);color:#0C0C0C;font-weight:800;border-radius:11px;
+  padding:14px 18px;width:100%;letter-spacing:.06em;text-transform:uppercase;font-size:14px;
+}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);font-weight:600;text-transform:none;letter-spacing:0}
+.btn:active{opacity:.75}
+
+/* ---- today hero ---- */
+.hero{
+  background:linear-gradient(160deg,#1C1C1C,#121212);
+  border:1px solid var(--line);border-left:3px solid var(--fire);
+  border-radius:14px;padding:20px;margin-top:18px;
+}
+.hero .kicker{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--fire);font-weight:800}
+.hero h1{margin:6px 0 2px;font-size:38px;line-height:1;font-weight:800;letter-spacing:-.01em;font-stretch:condensed;text-transform:uppercase}
+.hero .sub{color:var(--mute);font-size:14px}
+
+/* ---- progress dots ---- */
+.dots{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--panel2);border:1px solid var(--line)}
+.dot.on{background:var(--fire);border-color:var(--fire)}
+.dot.today{box-shadow:0 0 0 3px rgba(242,98,42,.22)}
+
+/* ---- checklist ---- */
+.check{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.check:last-child{border-bottom:none}
+.box{
+  width:24px;height:24px;flex:0 0 24px;border-radius:7px;border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:transparent;background:var(--panel2);
+}
+.box.on{background:var(--fire);border-color:var(--fire);color:#0C0C0C;font-weight:900}
+.check.done .label{color:var(--mute);text-decoration:line-through}
+.label{flex:1;min-width:0}
+
+/* ---- exercise ---- */
+.ex{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;overflow:hidden;background:var(--panel)}
+.ex-head{display:flex;align-items:center;gap:12px;padding:14px}
+.ex-num{
+  width:26px;height:26px;flex:0 0 26px;border-radius:7px;background:var(--panel2);
+  display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:var(--mute)
+}
+.ex-num.done{background:var(--fire);color:#0C0C0C}
+.ex-name{flex:1;font-weight:600;min-width:0}
+.ex-meta{font-size:12px;color:var(--mute)}
+.ex-body{padding:0 14px 14px;border-top:1px solid var(--line)}
+.setrow{display:flex;align-items:center;gap:8px;margin-top:10px}
+.setrow .n{width:22px;font-size:11px;color:var(--mute);font-weight:800}
+.setrow input{
+  flex:1;min-width:0;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+  border-radius:9px;padding:11px 10px;text-align:center;font-size:16px;
+}
+.setrow input:focus{outline:none;border-color:var(--fire)}
+.setrow .u{font-size:11px;color:var(--mute);width:22px}
+.hint{font-size:12px;color:var(--mute);margin-top:10px}
+.hint b{color:var(--fire)}
+
+/* ---- timer ---- */
+#timerbar{
+  position:fixed;left:0;right:0;bottom:calc(72px + env(safe-area-inset-bottom));z-index:60;
+  display:none;padding:0 var(--pad);
+}
+#timerbar .inner{
+  max-width:620px;margin:0 auto;background:var(--fire);color:#0C0C0C;border-radius:12px;
+  padding:12px 16px;display:flex;align-items:center;justify-content:space-between;
+  font-weight:800;box-shadow:0 8px 28px rgba(0,0,0,.5)
+}
+#timerbar .t{font-size:24px;font-variant-numeric:tabular-nums}
+#timerbar button{color:#0C0C0C;font-weight:800;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+
+/* ---- tabs ---- */
+nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:50;background:rgba(12,12,12,.96);
+  backdrop-filter:blur(12px);border-top:1px solid var(--line);
+  padding-bottom:env(safe-area-inset-bottom);
+}
+.tabs{display:flex;max-width:620px;margin:0 auto}
+.tab{flex:1;padding:12px 4px 14px;text-align:center;color:var(--mute);font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+.tab .ic{display:block;font-size:19px;margin-bottom:3px;line-height:1}
+.tab.on{color:var(--fire)}
+
+/* ---- misc ---- */
+.seg{display:flex;gap:8px;margin-bottom:12px}
+.seg button{flex:1;padding:10px;border-radius:10px;background:var(--panel);border:1px solid var(--line);font-size:13px;font-weight:600}
+.seg button.on{background:var(--fire);color:#0C0C0C;border-color:var(--fire)}
+.pill{display:inline-block;font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--panel2);color:var(--mute)}
+.pill.warn{background:var(--fire-dim);color:#FFD8C6}
+.macros{display:flex;gap:8px;margin-bottom:12px}
+.macro{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 8px;text-align:center}
+.macro .v{font-size:21px;font-weight:800;font-variant-numeric:tabular-nums}
+.macro .k{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);font-weight:700;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
+th{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute)}
+td input{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;padding:9px 8px;font-size:16px;text-align:center}
+td input:focus{outline:none;border-color:var(--fire)}
+.dateinput{background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:9px;padding:11px;width:100%;font-size:16px}
+.build{text-align:center;font-size:10px;color:#3A3A3A;letter-spacing:.1em;padding:26px 0 10px}
+.rest-note{text-align:center;padding:28px 10px;color:var(--mute)}
+.rest-note .big{font-size:44px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hbar">
+    <div class="brand"><b>Osman</b><span id="hdrGoal">Bulking</span></div>
+    <div class="blockchip" id="blockChip">W1 · D1</div>
+  </div>
+</header>
+
+<main class="wrap" id="view"></main>
+
+<div id="timerbar">
+  <div class="inner">
+    <div><div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.8" id="tLabel">Rest</div><div class="t" id="tClock">0:00</div></div>
+    <div style="display:flex;gap:14px;align-items:center">
+      <button onclick="addTime(15)">+15s</button>
+      <button onclick="stopTimer()">Skip</button>
+    </div>
+  </div>
+</div>
+
+<nav><div class="tabs">
+  <div class="tab on" data-tab="today" onclick="go('today')"><span class="ic">◎</span>Today</div>
+  <div class="tab" data-tab="train" onclick="go('train')"><span class="ic">▦</span>Train</div>
+  <div class="tab" data-tab="food"  onclick="go('food')"><span class="ic">◍</span>Food</div>
+  <div class="tab" data-tab="more"  onclick="go('more')"><span class="ic">≡</span>More</div>
+</div></nav>
+
+<script>
+const BUILD = "2026-07-22-osman-E";
+/* ============================================================
+   OSMAN — Sam Samouy transformation plan, 6/2026
+   PLAN DATA ONLY. No app logic lives in this file.
+
+   Rule: everything the coach decided goes in here. Everything
+   Osman does goes in localStorage. If those two ever mix, a new
+   month from the coach means rewriting the app instead of
+   swapping a file.
+   ============================================================ */
+
+const PLAN = {
+  version: "osman-2026-06",
+
+  profile: {
+    name: "Osman",
+    age: 29,
+    heightCm: 165,
+    startWeightKg: 57.8,
+    goal: "bulking",
+    coach: "Sam Samouy",
+    // Drives the pre-workout rehab prompt. Not decoration.
+    injuries: ["Disk in lower back"],
+    allergies: [],
+    dislikes: []
+  },
+
+  macros: { carbs: 307, protein: 174, fat: 65, kcal: 2533 },
+
+  // Standing rules. Shown once, never ask anything of the user.
+  rules: [
+    "Drink at least 4 litres of water daily.",
+    "Do not cut salt.",
+    "All herbs and spices are allowed.",
+    "Hot drinks are allowed and already counted.",
+    "Don't cook with oil — use spray or olive oil.",
+    "Swap sugar for stevia or any sweetener.",
+    "Weigh food after cooking, except oats.",
+    "Every meal: protein first, then veg, then carbs."
+  ],
+
+  /* ---------- MEALS ----------
+     A meal is a slot containing one or more choices; a choice is
+     a list of items. The snack has exactly one choice, so it
+     needs no special case — same shape, count of one. */
+  meals: [
+    {
+      id: "meal1",
+      label: "Meal 1",
+      choices: [
+        [ { food: "Whole eggs", amount: "3" },
+          { food: "Oats", amount: "100g" },
+          { food: "Almond milk", amount: "1 cup" } ],
+        [ { food: "Smoked turkey", amount: "120g" },
+          { food: "Brown toast", amount: "5 slices" },
+          { food: "Almonds", amount: "15g" } ]
+      ]
+    },
+    {
+      id: "meal2",
+      label: "Meal 2",
+      choices: [
+        [ { food: "Chicken breast", amount: "130g" },
+          { food: "Potatoes", amount: "225g" },
+          { food: "Green salad", amount: "100g" } ],
+        [ { food: "Lean beef", amount: "130g" },
+          { food: "Rice", amount: "175g" },
+          { food: "Steamed vegetables", amount: "100g" } ]
+      ]
+    },
+    {
+      id: "snack",
+      label: "Snack",
+      anytime: true,
+      choices: [
+        [ { food: "Banana", amount: "1" },
+          { food: "Greek yogurt", amount: "200g" },
+          { food: "Oats", amount: "100g" },
+          { food: "Nuts", amount: "30g" },
+          { food: "Whey protein", amount: "1 scoop" } ]
+      ]
+    },
+    {
+      id: "meal3",
+      label: "Meal 3",
+      choices: [
+        [ { food: "Chicken breast", amount: "130g" },
+          { food: "Rice", amount: "175g" },
+          { food: "Green salad", amount: "100g" } ],
+        [ { food: "Shrimp", amount: "130g" },
+          { food: "Potatoes", amount: "225g" },
+          { food: "Steamed vegetables", amount: "100g" } ]
+      ]
+    }
+  ],
+
+  /* Supplements point at meal ids rather than repeating the words
+     "with meal 2". The timing renders itself, and if a meal is
+     renamed the supplement follows automatically. */
+  supplements: [
+    { name: "Multivitamin",  dose: "1 serving", withMeals: ["meal2"] },
+    { name: "Omega-3",       dose: "1 serving", withMeals: ["meal1", "meal3"] },
+    { name: "Whey protein",  dose: "1 scoop",   withMeals: ["snack"] },
+    { name: "Creatine",      dose: "5g",        withMeals: ["snack"] },
+    { name: "Pre-workout",   dose: "1 serving", timing: "preWorkout" },
+    { name: "Glutamine",     dose: "1 serving", timing: "beforeBed" }
+  ],
+
+  /* ---------- CARDIO ----------
+     Identical all four weeks. Kept as a per-week array anyway:
+     when month two ramps it, that's an edit, not a redesign. */
+  cardio: {
+    anytime: true,
+    weeks: [
+      { week: 1, daysPerWeek: 5, device: "Stairmaster", hr: [130, 140], minutes: 20 },
+      { week: 2, daysPerWeek: 5, device: "Stairmaster", hr: [130, 140], minutes: 20 },
+      { week: 3, daysPerWeek: 5, device: "Stairmaster", hr: [130, 140], minutes: 20 },
+      { week: 4, daysPerWeek: 5, device: "Stairmaster", hr: [130, 140], minutes: 20 }
+    ]
+  },
+
+  /* ---------- LOWER BACK REHAB ----------
+     Pre-workout, 2-3 days a week. This is why it's a top-level
+     key and not a page: it has to interrupt the session start. */
+  rehab: {
+    label: "Lower back rehabilitation",
+    when: "preWorkout",
+    daysPerWeek: [2, 3],
+    exercises: [
+      { name: "Cat camel",            sets: 3, reps: [10, 10] },
+      { name: "Bird dog",             sets: 3, reps: [10, 10] },
+      { name: "Cobra",                sets: 3, reps: [10, 10] },
+      { name: "Bridge (small ROM)",   sets: 3, reps: [10, 10] },
+      { name: "Glute stretch",        sets: 3, holdSec: 15 },
+      { name: "Anterior pelvic tilt", sets: 3, holdSec: 15 }
+    ]
+  },
+
+  warmup: {
+    generalMin: [5, 7],
+    bodyPartMin: [3, 4],
+    plank: { sets: [2, 4], holdSec: [15, 20] },
+    cooldownMin: 5
+  },
+
+  /* ---------- PROGRESSION ----------
+     A rule, not a table of weights. The app computes next week's
+     target from what was actually logged. */
+  progression: {
+    incrementKg: [2, 5],
+    everyWeeks: 1,
+    holdUntilAllRepsHit: true
+  },
+
+  /* ---------- THE SPLIT ----------
+     Seven days, two of them rest. A training day holds `blocks`,
+     which is how abs attach to Chest and Arms without either
+     being a special case in the rendering code. */
+  days: [
+    {
+      day: 1, label: "Chest",
+      blocks: [
+        { name: "Chest", exercises: [
+          { name: "Chest fly machine",      sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Flat barbell press",     sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Incline dumbbell fly",   sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Incline dumbbell press", sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Decline cable fly",      sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Decline chest press",    sets: 3, reps: [8, 12], restSec: [30, 60] }
+        ]},
+        { name: "Abs", ref: "absBlock" }
+      ]
+    },
+    {
+      day: 2, label: "Back",
+      blocks: [
+        { name: "Back", exercises: [
+          { name: "Narrow grip lat pulldown",        sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Wide grip row machine",           sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "One arm row machine",             sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Standing cable rope lat pushdown",sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Chest supported T-bar row",       sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Hyperextension machine",          sets: 3, reps: [8, 12], restSec: [30, 60] }
+        ]}
+      ]
+    },
+    { day: 3, rest: true, label: "Rest" },
+    {
+      day: 4, label: "Shoulders",
+      blocks: [
+        { name: "Shoulders", exercises: [
+          { name: "Shoulder press machine", sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Dumbbell side laterals", sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Cable front raise",      sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Cable upright row",      sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Rear delt fly machine",  sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Dumbbell shrugs",        sets: 3, reps: [8, 12], restSec: [30, 60] }
+        ]}
+      ]
+    },
+    {
+      day: 5, label: "Arms",
+      blocks: [
+        { name: "Biceps", exercises: [
+          { name: "One-arm preacher curl", sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Biceps cable curl",     sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Dumbbell hammer curl",  sets: 3, reps: [8, 12], restSec: [30, 60] }
+        ]},
+        { name: "Triceps", exercises: [
+          { name: "Cable one arm overhead, reverse grip", sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Narrow pushdown",     sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Rope cable pushdown", sets: 3, reps: [8, 12], restSec: [30, 60] }
+        ]},
+        { name: "Abs", ref: "absBlock" }
+      ]
+    },
+    {
+      day: 6, label: "Legs",
+      blocks: [
+        { name: "Legs", exercises: [
+          { name: "Narrow leg press",      sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Single leg extension",  sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Hack squat",            sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Hip adduction",         sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Single leg curl",       sets: 3, reps: [8, 12], restSec: [30, 60] },
+          { name: "Standing calf machine", sets: 3, reps: [8, 12], restSec: [30, 60] }
+        ]}
+      ]
+    },
+    { day: 7, rest: true, label: "Rest" }
+  ],
+
+  /* Abs appear identically on days 1 and 5. Defined once and
+     referenced, so a change to the abs work can't half-apply. */
+  absBlock: {
+    name: "Abs",
+    exercises: [
+      { name: "Lying leg raise",       sets: 3, reps: [15, 15], restSec: [10, 10] },
+      { name: "Knee to elbow crunch",  sets: 3, reps: [15, 15], restSec: [10, 10] },
+      { name: "Alternating leg raise", sets: 3, reps: [15, 15], restSec: [10, 10] },
+      { name: "Plank",                 sets: 2, holdSec: 60,    restSec: [10, 10] }
+    ]
+  },
+
+  /* Tempo is one rule with two directions, not three examples. */
+  tempo: {
+    push: { lift: 1, squeeze: 2, lower: 4 },
+    pull: { lift: 1, squeeze: 2, lower: 4 },
+    legs: { lower: 4, hold: 2, push: 1 }
+  }
+};
+
+/* ============================================================
+   STORAGE — one key, one object. Everything Osman does.
+   Wrapped because Safari private mode throws on localStorage.
+   ============================================================ */
+const KEY = "osman-block-v1";
+let mem = null;
+/* Idempotent migration. Runs on every boot, repairs anything that
+   isn't the shape we expect — a half-written record, an older
+   version, or storage someone edited by hand. Never throws. */
+function normalize(o){
+  if(!o || typeof o !== "object" || Array.isArray(o)) o = {};
+  if(typeof o.blockStart !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(o.blockStart)) o.blockStart = today();
+  if(!o.log      || typeof o.log      !== "object" || Array.isArray(o.log))      o.log = {};
+  if(!o.measures || typeof o.measures !== "object" || Array.isArray(o.measures)) o.measures = {};
+  Object.keys(o.log).forEach(d=>{
+    const e = o.log[d];
+    if(!e || typeof e !== "object" || Array.isArray(e)){ delete o.log[d]; return; }
+    if(!e.sets  || typeof e.sets  !== "object") e.sets  = {};
+    if(!e.meals || typeof e.meals !== "object") e.meals = {};
+    if(!e.supps || typeof e.supps !== "object") e.supps = {};
+  });
+  return o;
+}
+function read(){
+  if(mem) return mem;
+  let raw = null;
+  try{ raw = localStorage.getItem(KEY); }catch(e){}
+  let parsed = null;
+  try{ parsed = raw ? JSON.parse(raw) : null; }catch(e){ parsed = null; }
+  mem = normalize(parsed);
+  return mem;
+}
+function save(){
+  try{ localStorage.setItem(KEY, JSON.stringify(mem)); }catch(e){}
+}
+function today(){ return iso(new Date()); }
+function iso(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function blank(){ return { sets:{}, meals:{}, supps:{}, cardio:false, rehab:false, weight:null }; }
+/* Read-only. Rendering uses this so that merely looking at a date
+   never writes to storage. Only user actions call dayEntry(). */
+function peek(date){
+  const e = read().log[date];
+  if(!e) return blank();
+  return Object.assign(blank(), e);
+}
+function dayEntry(date){
+  const s = read();
+  if(!s.log[date]) s.log[date] = { sets:{}, meals:{}, supps:{}, cardio:false, rehab:false, weight:null };
+  const e = s.log[date];
+  if(!e.sets) e.sets={}; if(!e.meals) e.meals={}; if(!e.supps) e.supps={};
+  return e;
+}
+
+/* ============================================================
+   THE SPINE — one stored date. Week and day are always derived,
+   never stored, so they cannot drift out of agreement.
+   ============================================================ */
+function pos(date){
+  const start = new Date(read().blockStart + "T00:00:00");
+  const d = new Date(date + "T00:00:00");
+  let diff = Math.round((d - start) / 86400000);
+  if(!isFinite(diff)) diff = 0;
+  const n = ((diff % 28) + 28) % 28;
+  return { week: Math.floor(n/7) + 1, day: (n%7) + 1 };
+}
+function setPos(week, day, date){
+  // Back-solve the start date that puts `date` on week/day.
+  const offset = (week-1)*7 + (day-1);
+  const d = new Date(date + "T00:00:00");
+  d.setDate(d.getDate() - offset);
+  read().blockStart = iso(d);
+  save();
+}
+function planDay(day){ return PLAN.days.find(d => d.day === day) || PLAN.days[0]; }
+function blocksOf(pd){
+  if(!pd || pd.rest) return [];
+  return pd.blocks.map(b => b.ref ? PLAN[b.ref] : b);
+}
+function exKey(name){ return name.toLowerCase().replace(/[^a-z0-9]+/g,"_"); }
+
+/* ============================================================
+   DERIVED — nothing below is stored. Sets are the only truth;
+   PBs, last-time and next targets are all computed from them.
+   ============================================================ */
+function isLogged(x){
+  return !!(x && ((x.w !== null && x.w !== undefined) || (x.r !== null && x.r !== undefined)));
+}
+function historyFor(name, beforeDate){
+  const s = read(); const k = exKey(name);
+  return Object.keys(s.log).filter(d => d < beforeDate && s.log[d].sets && s.log[d].sets[k] && s.log[d].sets[k].some(isLogged))
+    .sort().reverse();
+}
+function lastSession(name, beforeDate){
+  const dates = historyFor(name, beforeDate);
+  if(!dates.length) return null;
+  return { date: dates[0], sets: read().log[dates[0]].sets[exKey(name)].filter(isLogged) };
+}
+function pb(name){
+  const s = read(); const k = exKey(name); let best = 0;
+  Object.values(s.log).forEach(e=>{
+    (e.sets && e.sets[k] || []).forEach(x=>{ if(x && +x.w > best) best = +x.w; });
+  });
+  return best;
+}
+/* Progression rule, straight from the plan: hold the weight until
+   every set hits the top of the rep range, then add 2.5kg. */
+function target(name, ex, date){
+  const last = lastSession(name, date);
+  const top  = ex.holdSec ? ex.holdSec : (ex.reps ? ex.reps[1] : null);
+  const unit = ex.holdSec ? "s" : "";
+  if(!last) return { text:"First session — set your baseline", weight:null };
+  const weights = last.sets.map(x => +x.w || 0).filter(w => w > 0);
+  const allHit  = top !== null && last.sets.length >= (ex.sets || 3)
+                  && last.sets.every(x => (+x.r || 0) >= top);
+
+  // Bodyweight: abs and rehab carry no load, so progress on reps.
+  if(!weights.length){
+    const reps = last.sets.map(x => x.r ?? "–").join(", ");
+    return { text: (allHit ? "Last: " + reps + unit + " — all hit, add reps"
+                           : "Last: " + reps + unit), weight:null };
+  }
+  const w = Math.max(...weights);
+  if(top === null) return { text:"Last: " + w + "kg", weight:w };
+  if(allHit) return { text:"Hit all " + top + unit + " at " + w + "kg → go " + (w+2.5) + "kg", weight:w+2.5 };
+  return { text:"Stay at " + w + "kg until all sets reach " + top + unit, weight:w };
+}
+
+/* ============================================================
+   TIMER — derives remaining from an end timestamp, so it stays
+   correct when the phone locks or the tab is backgrounded.
+   ============================================================ */
+let tEnd = null, tTick = null, wake = null;
+let audioCtx = null;
+function beep(){
+  try{
+    if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state === "suspended") audioCtx.resume();
+    const now = audioCtx.currentTime;
+    [0,0.18,0.36].forEach((off,i)=>{
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.setValueAtTime(i===2?1046:784, now+off);
+      g.gain.setValueAtTime(0.0001, now+off);
+      g.gain.exponentialRampToValueAtTime(0.35, now+off+0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now+off+0.16);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(now+off); o.stop(now+off+0.2);
+    });
+  }catch(e){}
+}
+async function startTimer(sec, label){
+  try{ if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)(); if(audioCtx.state==="suspended") await audioCtx.resume(); }catch(e){}
+  tEnd = Date.now() + sec*1000;
+  document.getElementById("tLabel").textContent = label || "Rest";
+  document.getElementById("timerbar").style.display = "block";
+  try{ if("wakeLock" in navigator && !wake) wake = await navigator.wakeLock.request("screen"); }catch(e){}
+  if(tTick) clearInterval(tTick);
+  tTick = setInterval(paintTimer, 200);
+  paintTimer();
+}
+function paintTimer(){
+  if(tEnd === null) return;
+  const left = Math.max(0, Math.round((tEnd - Date.now())/1000));
+  document.getElementById("tClock").textContent = Math.floor(left/60)+":"+String(left%60).padStart(2,"0");
+  if(left <= 0){ beep(); stopTimer(); }
+}
+function addTime(s){ if(tEnd) { tEnd += s*1000; paintTimer(); } }
+function stopTimer(){
+  tEnd = null;
+  if(tTick){ clearInterval(tTick); tTick = null; }
+  document.getElementById("timerbar").style.display = "none";
+  try{ if(wake){ wake.release(); wake = null; } }catch(e){}
+}
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) paintTimer(); });
+
+/* ============================================================
+   VIEWS
+   ============================================================ */
+let tab = "today";
+let openEx = null;
+let viewDate = today();
+
+function go(t){
+  tab = t; openEx = null;
+  // Only Train browses other days. Leaving it snaps back to today,
+  // so the header chip can never disagree with what's on screen.
+  if(t !== "train") viewDate = today();
+  document.querySelectorAll(".tab").forEach(el=> el.classList.toggle("on", el.dataset.tab === t));
+  render();
+  window.scrollTo(0,0);
+}
+function esc(s){ return String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function render(){
+  const p = pos(viewDate);
+  document.getElementById("blockChip").textContent = "W"+p.week+" · D"+p.day;
+  document.getElementById("hdrGoal").textContent = PLAN.profile.goal;
+  const v = document.getElementById("view");
+  v.innerHTML = tab==="today" ? viewToday() : tab==="train" ? viewTrain() : tab==="food" ? viewFood() : viewMore();
+}
+
+/* ---------- TODAY ---------- */
+function viewToday(){
+  const d = today(); const p = pos(d); const pd = planDay(p.day); const e = peek(d);
+  const done = sessionDone(d, pd);
+  const mealsDone = PLAN.meals.filter(m => e.meals[m.id] && e.meals[m.id].done).length;
+  let h = "";
+
+  h += '<div class="hero">';
+  h += '<div class="kicker">Week '+p.week+' · Day '+p.day+'</div>';
+  h += '<h1>'+esc(pd.label)+'</h1>';
+  h += '<div class="sub">'+(pd.rest ? "Rest day — you already know how to do it" : blocksOf(pd).reduce((s,b)=>s+b.exercises.length,0)+" exercises · 3 sets · 8–12 reps")+'</div>';
+  h += '<div class="dots">'+PLAN.days.map(x=>{
+      const dd = dayFor(x.day, p); const de = read().log[dd];
+      const on = de && (x.rest ? false : sessionDone(dd, x));
+      return '<span class="dot'+(on?" on":"")+(x.day===p.day?" today":"")+'"></span>';
+    }).join("")+'</div>';
+  h += '</div>';
+
+  if(!pd.rest){
+    if(!e.rehab){
+      h += '<div class="card" style="border-color:var(--fire-dim)">';
+      h += '<div class="row"><div><span class="pill warn">Before you lift</span><div style="margin-top:8px;font-weight:600">'+esc(PLAN.rehab.label)+'</div>';
+      h += '<div class="sm mute">'+PLAN.rehab.exercises.length+' movements · your disk needs these before load, not after</div></div></div>';
+      h += '<button class="btn ghost" style="margin-top:12px" onclick="go(\'train\')">Open rehab</button>';
+      h += '</div>';
+    }
+    h += '<button class="btn" onclick="go(\'train\')">'+(done?"Review session":"Start session")+'</button>';
+  }
+
+  h += '<h2>Today</h2><div class="card">';
+  h += tick("Lower back rehab", e.rehab, "toggleRehab('"+d+"')", pd.rest);
+  h += tick("Cardio · "+PLAN.cardio.weeks[p.week-1].minutes+" min "+PLAN.cardio.weeks[p.week-1].device, e.cardio, "toggleCardio('"+d+"')");
+  h += tick("Meals ("+mealsDone+"/"+PLAN.meals.length+")", mealsDone===PLAN.meals.length, "go('food')");
+  h += '</div>';
+
+  h += '<h2>Bodyweight</h2><div class="card"><div class="row">';
+  h += '<div><div class="sm mute">Started at '+PLAN.profile.startWeightKg+' kg</div></div>';
+  h += '<input class="dateinput" style="width:120px;text-align:center" type="number" step="0.1" inputmode="decimal" placeholder="kg" value="'+(e.weight??"")+'" onchange="setWeight(\''+d+'\', this.value)">';
+  h += '</div></div>';
+  h += '<div class="build">BUILD '+BUILD+'</div>';
+  return h;
+}
+function dayFor(dayNum, p){
+  const d = new Date(today()+"T00:00:00");
+  d.setDate(d.getDate() + (dayNum - p.day));
+  return iso(d);
+}
+function sessionDone(date, pd){
+  if(!pd || pd.rest) return false;
+  const e = read().log[date]; if(!e || !e.sets) return false;
+  const all = blocksOf(pd).flatMap(b=>b.exercises);
+  return all.length>0 && all.every(ex => (e.sets[exKey(ex.name)]||[]).some(isLogged));
+}
+function tick(label, on, action, dim){
+  return '<div class="check'+(on?" done":"")+'"'+(dim?'':' onclick="'+action+'"')+' style="'+(dim?"opacity:.4;pointer-events:none":"")+'">'+
+    '<div class="box'+(on?" on":"")+'">✓</div><div class="label">'+esc(label)+'</div></div>';
+}
+function toggleRehab(d){ const e=dayEntry(d); e.rehab=!e.rehab; save(); render(); }
+function toggleCardio(d){ const e=dayEntry(d); e.cardio=!e.cardio; save(); render(); }
+function setWeight(d,v){ const e=dayEntry(d); e.weight = v===""?null:+v; save(); }
+
+/* ---------- TRAIN ---------- */
+function shiftDay(n){
+  const d = new Date(viewDate+"T00:00:00");
+  d.setDate(d.getDate()+n);
+  viewDate = iso(d); openEx = null; render();
+}
+function viewTrain(){
+  const p = pos(viewDate); const pd = planDay(p.day); const e = peek(viewDate);
+  let h = '<div class="row" style="margin:18px 0 14px">';
+  h += '<button class="btn ghost" style="width:auto;padding:10px 16px" onclick="shiftDay(-1)">‹</button>';
+  h += '<div style="text-align:center"><div style="font-weight:800;letter-spacing:.06em;text-transform:uppercase">'+esc(pd.label)+'</div><div class="sm mute">'+(viewDate===today()?"Today":viewDate)+' · W'+p.week+' D'+p.day+'</div></div>';
+  h += '<button class="btn ghost" style="width:auto;padding:10px 16px" onclick="shiftDay(1)">›</button></div>';
+
+  if(pd.rest){
+    h += '<div class="rest-note"><div class="big">◍</div><div style="font-weight:700;letter-spacing:.1em;text-transform:uppercase">Rest day</div>';
+    h += '<div class="sm" style="margin-top:6px">Cardio and meals still count. Nothing to lift.</div></div>';
+    return h;
+  }
+
+  // Rehab first — deliberately above the lifting, because it is pre-workout.
+  h += '<h2>Pre-workout · lower back</h2>';
+  h += '<div class="card">';
+  h += '<div class="sm mute" style="margin-bottom:6px">'+PLAN.rehab.daysPerWeek[0]+'–'+PLAN.rehab.daysPerWeek[1]+' days a week, before you load the spine.</div>';
+  PLAN.rehab.exercises.forEach(x=>{
+    const d = x.holdSec ? x.sets+" × "+x.holdSec+"s" : x.sets+" × "+x.reps[0];
+    h += '<div class="check" style="cursor:default"><div class="label">'+esc(x.name)+'</div><span class="sm mute">'+d+'</span></div>';
+  });
+  h += tick("Done — rehab complete", e.rehab, "toggleRehab('"+viewDate+"')");
+  h += '</div>';
+
+  h += '<div class="card sm mute" style="display:flex;gap:14px;justify-content:space-between">';
+  h += '<span>Warm-up '+PLAN.warmup.generalMin[0]+'–'+PLAN.warmup.generalMin[1]+' min</span>';
+  h += '<span>Plank '+PLAN.warmup.plank.sets[0]+'–'+PLAN.warmup.plank.sets[1]+' × '+PLAN.warmup.plank.holdSec[0]+'–'+PLAN.warmup.plank.holdSec[1]+'s</span>';
+  h += '<span>Cool-down '+PLAN.warmup.cooldownMin+' min</span></div>';
+
+  let n = 0;
+  blocksOf(pd).forEach(b=>{
+    h += '<h2>'+esc(b.name)+'</h2>';
+    b.exercises.forEach(ex=>{
+      n++;
+      h += exerciseCard(ex, n, e);
+    });
+  });
+  return h;
+}
+
+function exerciseCard(ex, n, e){
+  const k = exKey(ex.name);
+  const sets = e.sets[k] || [];
+  const logged = sets.filter(isLogged).length;
+  const open = openEx === k;
+  const spec = ex.holdSec ? ex.sets+" × "+ex.holdSec+"s" : ex.sets+" × "+ex.reps[0]+(ex.reps[0]===ex.reps[1]?"":"–"+ex.reps[1]);
+  const rest = ex.restSec ? ex.restSec[1] : 60;
+
+  let h = '<div class="ex">';
+  h += '<div class="ex-head" onclick="toggleEx(\''+k+'\')">';
+  h += '<div class="ex-num'+(logged>=ex.sets?" done":"")+'" id="num_'+k+'" data-n="'+n+'">'+(logged>=ex.sets?"✓":n)+'</div>';
+  h += '<div class="ex-name">'+esc(ex.name)+'<div class="ex-meta" id="meta_'+k+'" data-spec="'+esc(spec+' · rest '+rest+'s')+'" data-sets="'+ex.sets+'">'+spec+' · rest '+rest+'s'+(logged?" · "+logged+"/"+ex.sets+" logged":"")+'</div></div>';
+  h += '<div class="mute">'+(open?"▾":"▸")+'</div></div>';
+
+  if(open){
+    h += '<div class="ex-body">';
+    const t = target(ex.name, ex, viewDate);
+    h += '<div class="hint"><b>'+esc(t.text)+'</b>'+(pb(ex.name)?' · PB '+pb(ex.name)+'kg':'')+'</div>';
+    for(let i=0;i<ex.sets;i++){
+      const s = sets[i] || {};
+      h += '<div class="setrow"><div class="n">'+(i+1)+'</div>';
+      h += '<input type="number" inputmode="decimal" step="0.5" placeholder="'+(t.weight??"kg")+'" value="'+(s.w??"")+'" onchange="logSet(\''+k+'\','+i+',\'w\',this.value)"><div class="u">kg</div>';
+      h += '<input type="number" inputmode="numeric" placeholder="'+(ex.holdSec?ex.holdSec:ex.reps[1])+'" value="'+(s.r??"")+'" onchange="logSet(\''+k+'\','+i+',\'r\',this.value)"><div class="u">'+(ex.holdSec?"sec":"rep")+'</div>';
+      h += '</div>';
+    }
+    h += '<button class="btn" style="margin-top:14px" onclick="startTimer('+rest+',\''+esc(ex.name).replace(/'/g,"")+'\')">Rest '+rest+'s</button>';
+    h += '</div>';
+  }
+  h += '</div>';
+  return h;
+}
+function toggleEx(k){ openEx = (openEx===k? null : k); render(); }
+function logSet(k, i, field, val){
+  const e = dayEntry(viewDate);
+  if(!e.sets[k]) e.sets[k] = [];
+  while(e.sets[k].length <= i) e.sets[k].push({});
+  e.sets[k][i][field] = val === "" ? null : +val;
+  save();
+  refreshHead(k);
+}
+/* Update just the one header in place. A full re-render here would
+   blur the input the user is still typing in. */
+function refreshHead(k){
+  const num = document.getElementById("num_"+k), meta = document.getElementById("meta_"+k);
+  if(!num || !meta) return;
+  const logged = (peek(viewDate).sets[k]||[]).filter(isLogged).length;
+  const total = +meta.dataset.sets;
+  num.textContent = logged>=total ? "✓" : num.dataset.n;
+  num.classList.toggle("done", logged>=total);
+  meta.textContent = meta.dataset.spec + (logged ? " · "+logged+"/"+total+" logged" : "");
+}
+
+/* ---------- FOOD ---------- */
+function viewFood(){
+  const d = today(); const e = peek(d);
+  let h = '<h2>Daily targets</h2><div class="macros">';
+  [["Carbs",PLAN.macros.carbs+"g"],["Protein",PLAN.macros.protein+"g"],["Fat",PLAN.macros.fat+"g"]].forEach(m=>{
+    h += '<div class="macro"><div class="v">'+m[1]+'</div><div class="k">'+m[0]+'</div></div>';
+  });
+  h += '</div><div class="card" style="text-align:center"><div class="v" style="font-size:26px;font-weight:800">'+PLAN.macros.kcal+'</div><div class="k xs">calories per day</div></div>';
+
+  PLAN.meals.forEach(m=>{
+    const st = e.meals[m.id] || {};
+    const chosen = st.choice ?? 0;
+    h += '<h2>'+esc(m.label)+(m.anytime?' <span class="pill">any time</span>':'')+'</h2>';
+    h += '<div class="card">';
+    if(m.choices.length > 1){
+      h += '<div class="seg">'+m.choices.map((c,i)=>'<button class="'+(chosen===i?"on":"")+'" onclick="pickChoice(\''+m.id+'\','+i+')">Choice '+(i+1)+'</button>').join("")+'</div>';
+    }
+    m.choices[chosen].forEach(item=>{
+      h += '<div class="check" style="cursor:default"><div class="label">'+esc(item.food)+'</div><span class="sm mute">'+esc(item.amount)+'</span></div>';
+    });
+    const supps = PLAN.supplements.filter(s => (s.withMeals||[]).includes(m.id));
+    supps.forEach(s=>{
+      h += '<div class="check" style="cursor:default;opacity:.75"><div class="label sm">＋ '+esc(s.name)+'</div><span class="sm mute">'+esc(s.dose)+'</span></div>';
+    });
+    h += tick("Eaten", !!st.done, "toggleMeal('"+m.id+"')");
+    h += '</div>';
+  });
+
+  h += '<h2>Other supplements</h2><div class="card">';
+  PLAN.supplements.filter(s=>s.timing).forEach(s=>{
+    const when = s.timing === "preWorkout" ? "pre-workout" : "before bed";
+    h += tick(s.name+" · "+s.dose+" ("+when+")", !!e.supps[s.name], "toggleSupp('"+s.name.replace(/'/g,"")+"')");
+  });
+  h += '</div>';
+
+  h += '<h2>Standing rules</h2><div class="card">';
+  PLAN.rules.forEach(r=> h += '<div class="check" style="cursor:default"><div class="label sm">'+esc(r)+'</div></div>');
+  h += '</div>';
+  return h;
+}
+function pickChoice(id, i){ const e=dayEntry(today()); if(!e.meals[id]) e.meals[id]={}; e.meals[id].choice=i; save(); render(); }
+function toggleMeal(id){ const e=dayEntry(today()); if(!e.meals[id]) e.meals[id]={}; e.meals[id].done=!e.meals[id].done; save(); render(); }
+function toggleSupp(n){ const e=dayEntry(today()); e.supps[n]=!e.supps[n]; save(); render(); }
+
+/* ---------- MORE ---------- */
+const MEASURES = ["Chest","Right shoulder","Left shoulder","Waist","Sides","Right leg","Left leg","Weight"];
+function viewMore(){
+  const p = pos(today()); const c = PLAN.cardio.weeks[p.week-1];
+  let h = '<h2>Cardio</h2><div class="card">';
+  h += '<div class="row"><div><div style="font-weight:600">'+esc(c.device)+'</div>';
+  h += '<div class="sm mute">'+c.minutes+' min · HR '+c.hr[0]+'–'+c.hr[1]+' · '+c.daysPerWeek+' days a week</div></div>';
+  h += '<button class="btn ghost" style="width:auto;padding:10px 14px" onclick="startTimer('+(c.minutes*60)+',\'Cardio\')">Start</button></div>';
+  const wk = cardioThisWeek();
+  h += '<div class="dots" style="margin-top:14px">'+[0,1,2,3,4,5,6].map(i=>'<span class="dot'+(wk[i]?" on":"")+'"></span>').join("")+'</div>';
+  h += '<div class="sm mute" style="margin-top:8px">'+wk.filter(Boolean).length+' of '+c.daysPerWeek+' sessions this week</div>';
+  h += '</div>';
+
+  h += '<h2>Progression rule</h2><div class="card sm">';
+  h += 'Add '+PLAN.progression.incrementKg[0]+'–'+PLAN.progression.incrementKg[1]+'kg per week, same sets and reps. ';
+  h += 'If you miss reps, repeat the weight until every set hits the target before increasing.';
+  h += '<div class="hint" style="margin-top:10px">The app applies this per exercise: it holds your weight until all sets reach 12, then suggests +2.5kg.</div></div>';
+
+  h += '<h2>Tempo</h2><div class="card sm">';
+  h += '<div class="check" style="cursor:default"><div class="label">Push &amp; pull</div><span class="mute">1 up · 2 squeeze · 4 down</span></div>';
+  h += '<div class="check" style="cursor:default"><div class="label">Legs</div><span class="mute">4 down · 2 hold · 1 up</span></div>';
+  h += '</div>';
+
+  h += '<h2>Measurements</h2><div class="card"><table><thead><tr><th>Body part</th><th style="text-align:center">Day 1</th><th style="text-align:center">Day 30</th></tr></thead><tbody>';
+  MEASURES.forEach(m=>{
+    const v = read().measures[m] || {};
+    h += '<tr><td class="sm">'+esc(m)+'</td>';
+    h += '<td><input type="number" inputmode="decimal" value="'+(v.d1??"")+'" onchange="setMeasure(\''+m+'\',\'d1\',this.value)"></td>';
+    h += '<td><input type="number" inputmode="decimal" value="'+(v.d30??"")+'" onchange="setMeasure(\''+m+'\',\'d30\',this.value)"></td></tr>';
+  });
+  h += '</tbody></table></div>';
+
+  h += '<h2>Block position</h2><div class="card">';
+  h += '<div class="sm mute" style="margin-bottom:10px">Everything — the week number, the day, the cardio target — is worked out from this one date. Set it once and it advances on its own.</div>';
+  h += '<div class="row" style="gap:8px">';
+  h += '<select class="dateinput" onchange="jump(+this.value, '+p.day+')">'+[1,2,3,4].map(w=>'<option value="'+w+'"'+(w===p.week?" selected":"")+'>Week '+w+'</option>').join("")+'</select>';
+  h += '<select class="dateinput" onchange="jump('+p.week+', +this.value)">'+[1,2,3,4,5,6,7].map(d=>'<option value="'+d+'"'+(d===p.day?" selected":"")+'>Day '+d+' · '+planDay(d).label+'</option>').join("")+'</select>';
+  h += '</div><div class="sm mute" style="margin-top:10px">Block started '+read().blockStart+'</div></div>';
+
+  h += '<h2>Plan</h2><div class="card sm">';
+  h += '<div class="check" style="cursor:default"><div class="label mute">Coach</div><span>'+esc(PLAN.profile.coach)+'</span></div>';
+  h += '<div class="check" style="cursor:default"><div class="label mute">Goal</div><span>'+esc(PLAN.profile.goal)+'</span></div>';
+  h += '<div class="check" style="cursor:default"><div class="label mute">Start weight</div><span>'+PLAN.profile.startWeightKg+' kg</span></div>';
+  h += '<div class="check" style="cursor:default"><div class="label mute">Note</div><span>'+esc(PLAN.profile.injuries[0])+'</span></div>';
+  h += '</div>';
+
+  h += '<button class="btn ghost" style="margin-top:8px" onclick="wipe()">Erase all logged data</button>';
+  h += '<div class="build">BUILD '+BUILD+'</div>';
+  return h;
+}
+function cardioThisWeek(){
+  const p = pos(today()); const out = [];
+  for(let i=1;i<=7;i++){
+    const d = dayFor(i, p); const e = read().log[d];
+    out.push(!!(e && e.cardio));
+  }
+  return out;
+}
+function setMeasure(m, k, v){
+  const s = read();
+  if(!s.measures[m]) s.measures[m] = {};
+  s.measures[m][k] = v===""?null:+v;
+  save();
+}
+function jump(w,d){ setPos(w,d,today()); viewDate = today(); render(); }
+function wipe(){
+  if(!confirm("Erase every logged set, meal and measurement? The plan itself stays.")) return;
+  mem = { blockStart: today(), log:{}, measures:{} };
+  save(); render();
+}
+
+/* ============================================================
+   SANITY CHECKS — cheap assertions that run at boot. If the plan
+   data is malformed, this says so instead of rendering nonsense.
+   ============================================================ */
+function selfCheck(){
+  const out = [];
+  if(PLAN.days.length !== 7) out.push("expected 7 days, got "+PLAN.days.length);
+  PLAN.days.forEach(d=>{
+    if(d.rest) return;
+    if(!d.blocks || !d.blocks.length) out.push("day "+d.day+" has no blocks");
+    blocksOf(d).forEach(b=>{
+      if(!b.exercises || !b.exercises.length) out.push("day "+d.day+" block "+b.name+" is empty");
+      (b.exercises||[]).forEach(x=>{
+        if(!x.reps && !x.holdSec) out.push(x.name+" has neither reps nor hold");
+      });
+    });
+  });
+  if(PLAN.cardio.weeks.length !== 4) out.push("cardio needs 4 weeks");
+  PLAN.supplements.forEach(s=>{
+    (s.withMeals||[]).forEach(id=>{
+      if(!PLAN.meals.some(m=>m.id===id)) out.push(s.name+" points at unknown meal "+id);
+    });
+  });
+  if(out.length && window.console && console.warn) console.warn("PLAN check:", out);
+  return out;
+}
+
+/* ---------- boot ---------- */
+read();
+selfCheck();
+go("today");
+</script>
+</body>
+</html>
